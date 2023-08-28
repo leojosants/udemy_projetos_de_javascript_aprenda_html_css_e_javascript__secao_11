@@ -7,7 +7,7 @@ async function generateImagePairs() {
     for (let i = 0; i < cards.length; i++) {
         if (!imagePairs[cards[i]]) {
             const id = Math.floor(Math.random() * 1000) + 1;
-            const url = `https://picsum.photos/id/${id}/300/400`;
+            const url = `https://picsum.photos/id/${id}/200/300`;
 
             imagePairs[cards[i]] = [url, url];
         };
@@ -19,6 +19,11 @@ async function generateImagePairs() {
 function shuffleCards(cards) {
     cards.sort(() => Math.random() - 0.5);
 };
+
+let flippedCards = 0;
+let firstCard;
+let secondCard;
+let attempts = 0;
 
 async function createCards() {
     const imagePairs = await generateImagePairs();
@@ -47,12 +52,6 @@ async function createCards() {
     };
 };
 
-let flippedCards = 0;
-let attempts = 0;
-let firstCard;
-let secontCard;
-
-
 function flipCard() {
     if (flippedCards < 2 && !this.classList.contains('flip')) {
         flippedCards++;
@@ -62,7 +61,7 @@ function flipCard() {
             firstCard = this;
         }
         else {
-            secontCard = this;
+            secondCard = this;
             attempts++
 
             updateAttempts();
@@ -72,7 +71,31 @@ function flipCard() {
 };
 
 function checkForMatch() {
-    const isMatch = firstCard.getAttribute('data_card') === secontCard.getAttribute('data_card');
+    const isMatch = firstCard.getAttribute('data_card') === secondCard.getAttribute('card_card');
+    isMatch ? disableCards() : unflipCard();
+};
+
+function disableCards() {
+    firstCard.removeEventListener('click', flipCard);
+    secondCard.removeEventListener('click', flipCard);
+
+    if (document.querySelectorAll('.card:not(.flip)').length === 0) {
+        showCongratulationsMessage();
+    };
+
+    resetBoard();
+};
+
+function unflipCard() {
+    setTimeout(() => {
+        firstCard.classList.remove('flip');
+        secondCard.classList.remove('flip');
+        resetBoard();
+    }, 1000);
+};
+
+function resetBoard() {
+    [flippedCards, firstCard, secondCard] = [0, null, null];
 };
 
 function updateAttempts() {
@@ -80,7 +103,14 @@ function updateAttempts() {
     attemptsElement.textContent = `Tentativas: ${attempts}`;
 };
 
-createCards();
+function showCongratulationsMessage() {
+    const congratulationsMessage = document.querySelector('[data_congratulations_container]');
+    const congratulationsElement = document.createElement('p');
 
-// ('[data_congratulations_container]');
-// ('[data_attempts_container]');
+    congratulationsElement.classList.add('congratulations');
+    congratulationsElement.textContent = `Parabéns! Você Venceu em ${attempts}`;
+    congratulationsMessage.appendChild(congratulationsElement);
+
+};
+
+createCards();
