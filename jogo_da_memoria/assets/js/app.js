@@ -47,12 +47,40 @@ async function createCards() {
     };
 };
 
-function flipCard() { 
-    console.log('virou');
+let flippedCards = 0;
+let attempts = 0;
+let firstCard;
+let secontCard;
+
+
+function flipCard() {
+    if (flippedCards < 2 && !this.classList.contains('flip')) {
+        flippedCards++;
+        this.classList.add('flip');
+
+        if (flippedCards === 1) {
+            firstCard = this;
+        }
+        else {
+            secontCard = this;
+            attempts++
+
+            updateAttempts();
+            checkForMatch();
+        };
+    };
+};
+
+function checkForMatch() {
+    const isMatch = firstCard.getAttribute('data_card') === secontCard.getAttribute('data_card');
+};
+
+function updateAttempts() {
+    const attemptsElement = document.querySelector('[data_attempts]');
+    attemptsElement.textContent = `Tentativas: ${attempts}`;
 };
 
 createCards();
 
 // ('[data_congratulations_container]');
 // ('[data_attempts_container]');
-// ('[data_attempts]');
